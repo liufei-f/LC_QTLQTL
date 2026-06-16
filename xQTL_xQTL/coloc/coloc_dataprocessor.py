@@ -104,13 +104,15 @@ class COLOC2QTLLOCI:
             self.coloc_dir_input = os.path.join(self.coloc_base_dir, 'input')   # combined_ld/coloc/input
             Path(self.coloc_dir_input).mkdir(parents=True, exist_ok=True)
 
-            self.start_process(qtl1_summary_df, self.qtl1_col_dict, qtl2_summary_df, self.qtl2_col_dict)
+            self.start_process(qtl1_summary_df, self.qtl1_col_dict, qtl2_summary_df,
+                               self.qtl2_col_dict, qtl1_type_dict, qtl2_type_dict)
 
             with open(os.path.join(self.tool_parent_dir, f'{self.TOOL_NAME}_processed_done.txt'), 'w') as f:
                 f.write("DONE\n")
 
 
-    def start_process(self, qtl1_summary_df, qtl1_col_dict, qtl2_summary_df, qtl2_col_dict):
+    def start_process(self, qtl1_summary_df, qtl1_col_dict, qtl2_summary_df, 
+                      qtl2_col_dict, qtl1_type_dict, qtl2_type_dict):
         logging.info(f"start_process")
         total_len = len(qtl2_summary_df)
         for qtl1_ix, qtl1_row in qtl1_summary_df.iterrows():
@@ -137,40 +139,23 @@ class COLOC2QTLLOCI:
                 print(f"checkpoint 4: {qtl1_phenotype_id}_{qtl2_phenotype_id}")
                 qtl1_pheno_file = os.path.join(self.qtl1_grouped_dir, chrom, f"{qtl1_phenotype_id}.tsv.gz")
                 qtl2_pheno_file = os.path.join(self.qtl2_grouped_dir, chrom, f"{qtl2_phenotype_id}.tsv.gz")
-                self.process_pheno(qtl1_pheno_file, qtl1_col_dict, qtl1_phenotype_id,
-                                   qtl2_pheno_file, qtl2_col_dict, qtl2_phenotype_id,
-                                    self.var_id_col_name, chrom, 
-                                    self.qtl1_sample_size, self.qtl2_sample_size,
-                                    self.min_matching_number, 
-                                    self.qtl1_threshold, self.qtl2_threshold)
+                self.process_pheno(qtl1_pheno_file, qtl1_col_dict, qtl1_phenotype_id, qtl1_type_dict,
+                                   qtl2_pheno_file, qtl2_col_dict, qtl2_phenotype_id, qtl2_type_dict,
+                                   self.var_id_col_name, chrom,
+                                   self.qtl1_sample_size, self.qtl2_sample_size,
+                                   self.min_matching_number,
+                                   self.qtl1_threshold, self.qtl2_threshold)
 
 
-    def set_gwas_range_files(self, gwas_cluster_output_dir):
-        gwas_range_files = {}
-        for gwas_range_file in os.listdir(gwas_cluster_output_dir):
-            part_list = utils.get_file_name(gwas_range_file).split('_')
-            # if len(part_list) < 2 or 'chr' not in part_list[1]:
-            #     continue
-            if len(part_list) < 2 or 'chr' not in part_list[0]:
-                continue
-            chrom = part_list[0].strip('chr')
-            range_files = gwas_range_files.get(chrom, [])
-            range_files.append(os.path.join(gwas_cluster_output_dir, gwas_range_file))
-            gwas_range_files[chrom] = range_files
-        
-        return gwas_range_files
-
-
-
-    def process_pheno(self, qtl1_pheno_file, qtl1_col_dict, qtl1_phenotype_id,
-                      qtl2_pheno_file, qtl2_col_dict, qtl2_phenotype_id,
+    def process_pheno(self, qtl1_pheno_file, qtl1_col_dict, qtl1_phenotype_id, qtl1_type_dict,
+                      qtl2_pheno_file, qtl2_col_dict, qtl2_phenotype_id, qtl2_type_dict,
                       var_id_col_name, chrom, 
                       qtl1_sample_size, qtl2_sample_size,
                       min_matching_number, 
                       qtl1_threshold, qtl2_threshold):
         logging.info(f'COLOC process_pheno {self.qtl1_type} {qtl1_phenotype_id} and {self.qtl2_type} {qtl2_phenotype_id}')
         # print(f'COLOC process_pheno')
-
+        logging.log(f"checkpoint xxx1")
         qtl1_trait_df = pd.read_table(qtl1_pheno_file, sep=const.column_spliter,
                                           usecols=[
                                               var_id_col_name,
@@ -185,7 +170,7 @@ class COLOC2QTLLOCI:
                                               qtl1_col_dict['phenotype_id'],
                                               qtl1_col_dict['maf'], 
                                               ],
-                                          dtype=qtl1_col_dict)
+                                          dtype=qtl1_type_dict)
         if len(qtl1_trait_df) <= 1:
             logging.info(f'no qtl1_trait_df')
             return
@@ -193,7 +178,7 @@ class COLOC2QTLLOCI:
         if not Path(qtl2_pheno_file).exists():
             logging.info(f"ProcessingPheno:: {qtl2_pheno_file} does not exists!!")
             return
-        print(f"checkpoint 3: {qtl2_phenotype_id}")
+        logging.log(f"checkpoint xxx2")
         qtl2_trait_df = pd.read_table(qtl2_pheno_file, sep=const.column_spliter,
                                       usecols=[
                                           var_id_col_name,
@@ -207,7 +192,7 @@ class COLOC2QTLLOCI:
                                           qtl2_col_dict['phenotype_id'],
                                           qtl2_col_dict['maf'],
                                           qtl2_col_dict['snp']],
-                                      dtype=qtl2_col_dict)
+                                      dtype=qtl2_type_dict)
 
         qtl2_trait_df.drop(
             index=qtl2_trait_df[~qtl2_trait_df[var_id_col_name].isin(qtl1_trait_df[var_id_col_name])].index,
@@ -280,7 +265,7 @@ class COLOC2QTLLOCI:
             qtl2_trait_df_coloc['varbeta'] = qtl2_trait_df_coloc[qtl2_col_dict['se']] ** 2
         qtl2_trait_df_coloc.rename({v: k for k, v in qtl2_col_dict.items()}, axis='columns', inplace=True)
 
-
+        logging.log(f"checkpoint xxx3")
         if len(qtl1_trait_df_coloc[qtl1_trait_df_coloc['pvalue'] < qtl1_threshold]) <= 0:
             logging.info(f'{qtl1_phenotype_id}c oloc no sig qtl_trait {qtl1_threshold}')
             return
