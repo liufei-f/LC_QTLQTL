@@ -176,12 +176,14 @@ class COLOC2QTLLOCI:
                                               var_id_col_name,
                                               qtl1_col_dict['chrom'],
                                               qtl1_col_dict['position'],
-                                              qtl1_col_dict['effect_allele'],
-                                              qtl1_col_dict['other_allele'],
+                                              qtl1_col_dict['alt'],
+                                              qtl1_col_dict['ref'],
                                               qtl1_col_dict['beta'],
                                               qtl1_col_dict['se'],
                                               qtl1_col_dict['pvalue'],
-                                              qtl1_col_dict['snp']
+                                              qtl1_col_dict['snp'],
+                                              qtl1_col_dict['phenotype_id'],
+                                              qtl1_col_dict['maf'], 
                                               ],
                                           dtype=qtl1_col_dict)
         if len(qtl1_trait_df) <= 1:
@@ -248,20 +250,26 @@ class COLOC2QTLLOCI:
 
         # Now gwas/qtl/vcf have the same num of rows, write candidate data to file
         # Reverse GWAS&qtl column mapping key-value and pass to R so that dataframe in R has fixed column names
-        qtl2_trait_df_coloc = qtl2_trait_df[[var_id_col_name,qtl2_col_dict['chrom'],
-                                           qtl2_col_dict['position'], qtl2_col_dict['alt'],
-                                           qtl2_col_dict['ref'],qtl2_col_dict['beta'],
-                                           qtl2_col_dict['se'],qtl2_col_dict['pvalue'],
-                                           qtl2_col_dict['phenotype_id'],
-                                           qtl2_col_dict['maf']]]
+        qtl2_trait_df_coloc = qtl2_trait_df[[var_id_col_name,
+                                             qtl2_col_dict['chrom'],
+                                             qtl2_col_dict['position'], 
+                                             qtl2_col_dict['alt'],
+                                             qtl2_col_dict['ref'],
+                                             qtl2_col_dict['beta'],
+                                             qtl2_col_dict['se'],
+                                             qtl2_col_dict['pvalue'],
+                                             qtl2_col_dict['phenotype_id'],
+                                             qtl2_col_dict['maf']]]
         qtl1_trait_df_coloc = qtl1_trait_df[[var_id_col_name,
-                                              qtl1_col_dict['chrom'],
-                                              qtl1_col_dict['position'],
-                                              qtl1_col_dict['effect_allele'],
-                                              qtl1_col_dict['other_allele'],
-                                              qtl1_col_dict['beta'],
-                                              qtl1_col_dict['se'],
-                                              qtl1_col_dict['pvalue']]]
+                                             qtl1_col_dict['chrom'],
+                                             qtl1_col_dict['position'], 
+                                             qtl1_col_dict['alt'],
+                                             qtl1_col_dict['ref'],
+                                             qtl1_col_dict['beta'],
+                                             qtl1_col_dict['se'],
+                                             qtl1_col_dict['pvalue'],
+                                             qtl1_col_dict['phenotype_id'],
+                                             qtl1_col_dict['maf']]]
 
         if ('varbeta' not in qtl1_col_dict.keys() or qtl1_col_dict.get('varbeta') is None) and (
                 'se' in qtl1_col_dict.keys() and qtl1_col_dict.get('se') is not None):
