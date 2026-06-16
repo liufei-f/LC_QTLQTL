@@ -155,7 +155,7 @@ class COLOC2QTLLOCI:
                       qtl1_threshold, qtl2_threshold):
         logging.info(f'COLOC process_pheno {self.qtl1_type} {qtl1_phenotype_id} and {self.qtl2_type} {qtl2_phenotype_id}')
         # print(f'COLOC process_pheno')
-        logging.log(f"checkpoint xxx1")
+        logging.info(f"checkpoint xxx1")
         qtl1_trait_df = pd.read_table(qtl1_pheno_file, sep=const.column_spliter,
                                           usecols=[
                                               var_id_col_name,
@@ -178,7 +178,7 @@ class COLOC2QTLLOCI:
         if not Path(qtl2_pheno_file).exists():
             logging.info(f"ProcessingPheno:: {qtl2_pheno_file} does not exists!!")
             return
-        logging.log(f"checkpoint xxx2")
+        logging.info(f"checkpoint xxx2")
         qtl2_trait_df = pd.read_table(qtl2_pheno_file, sep=const.column_spliter,
                                       usecols=[
                                           var_id_col_name,
@@ -265,7 +265,7 @@ class COLOC2QTLLOCI:
             qtl2_trait_df_coloc['varbeta'] = qtl2_trait_df_coloc[qtl2_col_dict['se']] ** 2
         qtl2_trait_df_coloc.rename({v: k for k, v in qtl2_col_dict.items()}, axis='columns', inplace=True)
 
-        logging.log(f"checkpoint xxx3")
+        logging.info(f"checkpoint xxx3")
         if len(qtl1_trait_df_coloc[qtl1_trait_df_coloc['pvalue'] < qtl1_threshold]) <= 0:
             logging.info(f'{qtl1_phenotype_id}c oloc no sig qtl_trait {qtl1_threshold}')
             return
