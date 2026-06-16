@@ -167,10 +167,7 @@ def run(config_file=None, log_file=None, parallel=False, tools_config=None, no_r
             with open(f"{os.path.join('/process/', 'process_schedule.log')}", 'w') as schedule:
                 schedule.write(str(calculated_schedule))
         else:
-            if config_holder.gwas == True:
-                Path(config_holder.rank_dir).mkdir(parents=True, exist_ok=True)
-                with open(f"{os.path.join(config_holder.rank_dir, 'process_schedule.log')}", 'w') as schedule:
-                    schedule.write(str(calculated_schedule))
+            pass
         schedule.close()
 
 
@@ -193,11 +190,7 @@ def run(config_file=None, log_file=None, parallel=False, tools_config=None, no_r
         with open(f"{os.path.join('/process/', 'process_schedule.log')}", 'w') as schedule:
             schedule.write(str(95))
     else:
-        if config_holder.gwas == True:
-            Path(config_holder.qtl1_rank_dir).mkdir(parents=True, exist_ok=True)
-            with open(f"{os.path.join(config_holder.qtl1_rank_dir, 'process_schedule.log')}", 'w') as schedule:
-                schedule.write(str(95))
-
+        pass
     genecode_file = config_holder.global_config['input']['genecode']
     logging.info(f"genecode_file : {genecode_file}")
     lc3outpath = os.path.join(config_holder.final_json_dir,
@@ -319,12 +312,12 @@ def __run_single_cfg(config_holder, report_list, parallel, study,
                  f'biological_context: {qtl1_biological_context}, '
                  f'start time: {start_time}')
     ############################################################################
-    #                    1.1 Check QTL and GWAS entry file exist               #
+    #                    1.1 Check QTL1 and QTL2 entry file exist               #
     ############################################################################
     utils.check_file_or_path_exist(config_holder.root_work_dir)
-    if config_holder.gwas == True:
-        utils.check_file_or_path_exist(config_holder.gwas_file_path)
-        utils.check_file_or_path_exist(config_holder.qtl1_file)
+
+    utils.check_file_or_path_exist(config_holder.qtl1_file)
+    utils.check_file_or_path_exist(config_holder.qtl2_file)
 
     # utils.check_file_or_path_exist(global_config['input']['vcf'])
 
@@ -400,27 +393,15 @@ def __run_single_cfg(config_holder, report_list, parallel, study,
                             f'by threshold {config_holder.qtl1_p_threshold}')
             return
 
+    if not utils.file_exists(processor.qtl2_output_report):
+        processor.preprocess_qtl_type('qtl2')
 
-    ############################################################################
-    #                            1.4 Preprocess GWAS                           #
-    ############################################################################
-    # preprocess gwas,eqtl,vcf
-
-    if config_holder.gwas == True:
-        if config_holder.genomic_window == 'combined_LD_based_window' and (not utils.file_exists(processor.gwas_cluster_summary)):
-        # not utils.file_exists(processor.gwas_fixed_cluster_summary) and \
-            processor.preprocess_gwas()
-        if (config_holder.genomic_window == 'fixed_GWAS_Loci_window' or config_holder.whether_fixed_window == True) and (not utils.file_exists(processor.gwas_fixed_cluster_summary)):
-            processor.preprocess_gwas()
-
-        gwas_sig_df = pd.read_table(config_holder.gwas_filter_file, nrows=2)
-        num_of_sig_gwas_SNP = gwas_sig_df.shape[0]
-
-        if num_of_sig_gwas_SNP == 0:
-            gwas_file = config_holder.gwas_filter_file
-            logging.warning(f'No significant records found in GWAS file {gwas_file} '
-                            f'by threshold {config_holder.gwas_p_threshold}')
+        qtl2_sig_df = pd.read_table(config_holder.qtl2_output_report, nrows=2)
+        if qtl2_sig_df.shape[0] == 0:
+            logging.warning(f'No significant records found in QTL file {config_holder.qtl2_file} '
+                            f'by threshold {config_holder.qtl2_p_threshold}')
             return
+
     
 
     ############################################################################
@@ -428,9 +409,7 @@ def __run_single_cfg(config_holder, report_list, parallel, study,
     ############################################################################
 
     utils.check_path_exist_and_has_size(processor.qtl1_output_report)
-    if config_holder.gwas == True:
-        utils.check_path_exist_and_has_size(processor.gwas_preprocessed_file)
-        utils.check_file_or_path_exist(processor.gwas_cluster_output_dir)
+    utils.check_path_exist_and_has_size(processor.qtl2_output_report)
 
     # ############################################################################
     # #                 1.6 Identify matching loci for GWAS/QTL                  #
