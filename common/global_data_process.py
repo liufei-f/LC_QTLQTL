@@ -59,12 +59,7 @@ class Processor:
 
         self.keep_intermediate = self.config_holder.keep_intermediate
         self.tools_config_file = self.config_holder.tools_config_file
-        self.whether_fixed_window = self.config_holder.whether_fixed_window
 
-        self.cCREs_file = self.config_holder.cCREs_file
-        ########################################################################
-        ##                            GWAS setting                            ##
-        ########################################################################
 
 
 
