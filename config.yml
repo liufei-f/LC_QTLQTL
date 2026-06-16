@@ -1,0 +1,52 @@
+working_dir: /data1_gwas_dev19/colot_runs/dev_11/
+tools:
+- coloc
+- smr
+- predixcan
+- twas
+- fastenloc
+- ecaviar
+input:
+  gwas:
+    file: /data1_gwas_dev19/gwas_in/dev_11/preprocessed_diagram.mega-meta.txt.gz
+    target_loci: filepath
+    trait: diag
+    sample_size: 149821
+    type: quant
+    col_name_mapping:
+      snp: rsid
+      chrom: chr
+      position: pos
+      beta: beta
+      effect_allele: alt
+      other_allele: ref
+      pvalue: pval
+      se: se
+  qtl:
+    qtl_type: 'sQTL'
+    file: /data1_gwas_dev19/coloc/biodata/colocalization/raw/eqtl/gtex_v8/Muscle_Skeletal.tsv.gz
+    biological_context: Muscle_Skeletal
+    qtl_preprocessed_dir: /data1_gwas_dev19/coloc/biodata/colocalization/raw/preprocessed/
+    sample_size: 670
+    type: quant
+    col_name_mapping:
+      snp: rsid
+      chrom: chromosome
+      position: position
+      beta: beta
+      alt: alt
+      ref: ref
+      pvalue: pvalue
+      se: se
+      phenotype_id: phenotype_id
+      maf: maf
+  vcf: /data1_gwas_dev19/coloc/biodata/colocalization/raw/vcf/phased_hg38/
+  genecode: /data1_gwas_dev19/coloc/biodata/colocalization/raw/genecode/gencode.v26.basic.annotation.gtf.gz
+  ld_block_loci_file: /data1_gwas_dev19/coloc/biodata/colocalization/raw/loci/eur_hg38_ld_block.bed
+  prediction_dir: /data1_gwas_dev19/coloc/biodata/colocalization/raw/prediction_model_covariance/gtex_v8_mashr
+  reference_genotype_panel_ld_ref_file: /data1_gwas_dev19/coloc/biodata/colocalization/raw/ldref/refld.1kg.nfe.b38
+  twas_model_dir: /data1_gwas_dev19/coloc/biodata/colocalization/raw/twas_model
+p-value_threshold:
+  gwas: 1.0e-05
+  qtl: 1.0e-05
+population: EUR
