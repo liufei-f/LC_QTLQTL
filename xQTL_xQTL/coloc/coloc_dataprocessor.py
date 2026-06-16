@@ -210,10 +210,10 @@ class COLOC2QTLLOCI:
             return
         ## coloc/input
 
-        coloc_input_qtl1_path = os.path.join(self.coloc_dir_input, f'qtl1_{self.qtl1_type}_{chrom}_{qtl1_phenotype_id}.tsv.gz')
-        coloc_input_qtl2_path = os.path.join(self.coloc_dir_input, f'qtl2_{self.qtl2_type}_{chrom}_{qtl2_phenotype_id}.tsv.gz')
-        print(f'coloc_qtl1_input_path: {coloc_input_qtl1_path}')
-        print(f'coloc_qtl2_input_path: {coloc_input_qtl2_path}')
+        coloc_input_qtl1_path = os.path.join(self.coloc_dir_input, f'qtl1_chr{chrom}_{self.qtl1_type}_{qtl1_phenotype_id}_{self.qtl2_type}_{qtl2_phenotype_id}.tsv.gz')
+        coloc_input_qtl2_path = os.path.join(self.coloc_dir_input, f'qtl2_chr{chrom}_{self.qtl1_type}_{qtl1_phenotype_id}_{self.qtl2_type}_{qtl2_phenotype_id}.tsv.gz')
+        logging.info(f'coloc_qtl1_input_path: {coloc_input_qtl1_path}')
+        logging.info(f'coloc_qtl2_input_path: {coloc_input_qtl2_path}')
 
 
 
@@ -265,15 +265,14 @@ class COLOC2QTLLOCI:
             qtl2_trait_df_coloc['varbeta'] = qtl2_trait_df_coloc[qtl2_col_dict['se']] ** 2
         qtl2_trait_df_coloc.rename({v: k for k, v in qtl2_col_dict.items()}, axis='columns', inplace=True)
 
-        logging.info(f"checkpoint xxx3")
         if len(qtl1_trait_df_coloc[qtl1_trait_df_coloc['pvalue'] < qtl1_threshold]) <= 0:
-            logging.info(f'{qtl1_phenotype_id}c oloc no sig qtl_trait {qtl1_threshold}')
+            logging.info(f'{qtl1_phenotype_id} coloc no sig qtl_trait {qtl1_threshold}')
             return
         if len(qtl2_trait_df_coloc[qtl2_trait_df_coloc['pvalue'] < qtl2_threshold]) <= 0:
             logging.info(f'{qtl2_phenotype_id} coloc no sig qtl_trait {qtl2_threshold}')
             return
 
-        print(f"successfully output coloc input files for {self.qtl1_type} {qtl1_phenotype_id} and {self.qtl2_type} {qtl2_phenotype_id}")
+        logging.info(f"Successfully output coloc input files for {self.qtl1_type} {qtl1_phenotype_id} and {self.qtl2_type} {qtl2_phenotype_id}")
         qtl1_trait_df_coloc.to_csv(\
                             coloc_input_qtl1_path, sep=const.output_spliter, header=True, index=False)
         qtl2_trait_df_coloc.to_csv(\

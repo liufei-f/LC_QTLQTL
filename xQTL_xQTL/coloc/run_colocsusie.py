@@ -112,13 +112,13 @@ class COLOCSUSIE:
             qtl1_coloc_path = each
             qtl1_coloc_filename = os.path.basename(each)
             
-            qtl2_coloc_filename = qtl1_coloc_filename.replace(f'qtl1_{self.qtl1_type}', f'qtl2_{self.qtl2_type}')
+            qtl2_coloc_filename = 'qtl2_'+'_'.join(qtl1_coloc_filename.split('_')[1:])
             qtl2_coloc_path = os.path.join(coloc_dir_input, qtl2_coloc_filename)
 
             qtl1_colocsusie_path = os.path.join(susie_input_dir, qtl1_coloc_filename)
             qtl2_colocsusie_path = os.path.join(susie_input_dir, qtl2_coloc_filename)
 
-
+            chrom = qtl1_coloc_filename.split('_')[1].strip('chr')
             qtl1 = pd.read_csv(qtl1_coloc_path, sep='\t')
             qtl1.index = qtl1['var_id_']
             qtl2 = pd.read_csv(qtl2_coloc_path, sep='\t')
@@ -131,10 +131,11 @@ class COLOCSUSIE:
             # max_pos = str(max(gwas[self.gwas_col_dict['position']]))
 
 
-            qtl1_phenotype_id = '_'.join(qtl1_coloc_filename.strip('.tsv.gz').split('_')[3:])
-            qtl2_phenotype_id = '_'.join(qtl2_coloc_filename.strip('.tsv.gz').split('_')[3:])
-            chrom = str(qtl1_coloc_filename.split('_')[2].strip('chr'))
-            filename = f'{chrom}_{self.qtl1_type}_{qtl1_phenotype_id}_{self.qtl2_type}_{qtl2_phenotype_id}'
+            qtl1_phenotype_id = qtl1_coloc_filename.strip('.tsv.gz').split(f'_{self.qtl2_type}_')[0].strip(f"qtl1_chr{chrom}_{self.qtl1_type}_")
+            qtl2_phenotype_id = qtl2_coloc_filename.strip('.tsv.gz').split(f'_{self.qtl2_type}_')[1]
+            logging.info(f"check phenotype IDs: {qtl1_phenotype_id}, {qtl2_phenotype_id}")
+
+            filename = f'chr{chrom}_{self.qtl1_type}_{qtl1_phenotype_id}_{self.qtl2_type}_{qtl2_phenotype_id}'
             plinkld_outname = os.path.join(susie_input_dir, filename)
             output_file = os.path.join(susie_output_dir, f'{filename}.tsv')
 
