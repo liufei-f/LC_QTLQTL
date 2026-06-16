@@ -181,7 +181,6 @@ class ConfigHolder:
 
 
         self.tool_parent_dir = os.path.join(self.study_dir, 
-                                            str(self.gwas_trait), 
                                             f"{self.qtl1_type}_{self.qtl1_biological_context}_{self.qtl2_type}_{self.qtl2_biological_context}_{self.population}",
                                             
                                             )

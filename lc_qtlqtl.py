@@ -175,14 +175,6 @@ def run(config_file=None, log_file=None, parallel=False, tools_config=None, no_r
 
 
         integrate_result_dict[f"cfg_{sub_study}"] = {}
-        if config_holder.gwas == True:
-            integrate_result_dict[f"cfg_{sub_study}"]['trait1'] = 'gwas'
-            integrate_result_dict[f"cfg_{sub_study}"]['trait1_name'] = config_holder.gwas_trait
-            integrate_result_dict[f"cfg_{sub_study}"]['trait2'] = qtl1_type
-            integrate_result_dict[f"cfg_{sub_study}"]['trait2_name'] = biological1_context
-            integrate_result_dict[f"cfg_{sub_study}"]['population'] = population
-            integrate_result_dict[f"cfg_{sub_study}"]['GIM_results'] = results_dict
-
 
         try:
             utils.delete_dir(os.path.join(config_holder.qtl1_tool_parent_dir, 'vcf'), config_holder.keep_intermediate)
