@@ -74,7 +74,6 @@ class COLOC2QTLLOCI:
         self.qtl2_threshold = self.processor.config_holder.qtl2_p_threshold
 
         # vcf input output path
-        self.vcf_output_dir = self.processor.vcf_output_dir
         self.ref_vcf_dir = self.processor.ref_vcf_dir
         self.rsidvcf = self.processor.rsidvcf
         self.min_matching_number = self.processor.min_matching_number
