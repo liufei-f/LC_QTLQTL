@@ -143,8 +143,9 @@ class COLOC2QTLLOCI:
                 for qtl2_phenotype_id, qtl2_positions in qtl2_entries:
                     n_checked += 1
                     if len(qtl1_positions & qtl2_positions) < self.min_matching_number:
+                        logging.info(f"Skip, no enough matching SNPs")
                         continue
-
+                    logging.info(f"ProcessingPheno:: {self.qtl1_type} {qtl1_phenotype_id} and {self.qtl2_type} {qtl2_phenotype_id}")
                     n_processed += 1
                     qtl1_pheno_file = os.path.join(self.qtl1_grouped_dir, chrom, f"{qtl1_phenotype_id}.tsv.gz")
                     qtl2_pheno_file = os.path.join(self.qtl2_grouped_dir, chrom, f"{qtl2_phenotype_id}.tsv.gz")
