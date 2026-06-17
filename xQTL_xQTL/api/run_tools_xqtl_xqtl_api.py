@@ -61,12 +61,12 @@ def __preprocess_and_run_coloc(processor, current_analysis_order, total_numof_an
         # coloc = rc.Coloc()
         if 'gtex' not in processor.global_config or 'LDsketch_meta_path' not in processor.global_config:
             colocsusie = rcs.COLOCSUSIE()
-            coloc_dir_input = os.path.join(processor.qtl1_coloc_base_dir, 'input')
-            coloc_dir_output = os.path.join(processor.qtl1_coloc_base_dir, 'output')
+            coloc_dir_input = os.path.join(processor.coloc_base_dir, 'input')
+            coloc_dir_output = os.path.join(processor.coloc_base_dir, 'output')
             input_files = glob(os.path.join(coloc_dir_input, 'qtl1*'))
-            final_report_dir = processor.qtl1_coloc_base_dir
-            susie_input_dir = os.path.join(processor.qtl1_susie_base_dir, 'input')
-            susie_output_dir = os.path.join(processor.qtl1_susie_base_dir, 'output')
+            final_report_dir = processor.coloc_base_dir
+            susie_input_dir = os.path.join(processor.susie_base_dir, 'input')
+            susie_output_dir = os.path.join(processor.susie_base_dir, 'output')
             results = colocsusie.run(processor, input_files, 
                                                     coloc_dir_input, coloc_dir_output,
                                                     susie_input_dir, susie_output_dir, 
