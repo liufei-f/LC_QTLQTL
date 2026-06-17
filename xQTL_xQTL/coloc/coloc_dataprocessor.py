@@ -110,42 +110,58 @@ class COLOC2QTLLOCI:
             with open(os.path.join(self.tool_parent_dir, f'{self.TOOL_NAME}_processed_done.txt'), 'w') as f:
                 f.write("DONE\n")
 
+    def _strip_suffix(filename, suffix):
+        """Remove a literal suffix, unlike str.strip() which strips a *character set*."""
+        return filename[: -len(suffix)] if filename.endswith(suffix) else filename
 
-    def start_process(self, qtl1_summary_df, qtl1_col_dict, qtl2_summary_df, 
-                      qtl2_col_dict, qtl1_type_dict, qtl2_type_dict):
-        logging.info(f"start_process")
-        total_len = len(qtl2_summary_df)
-        for qtl1_ix, qtl1_row in qtl1_summary_df.iterrows():
-            qtl1_chrom = str(qtl1_row.loc['chrom'])
-            for qtl2_ix, qtl2_row in qtl2_summary_df.iterrows():
-                qtl2_chrom = str(qtl2_row.loc['chrom'])
-                if qtl1_chrom != qtl2_chrom:
-                    logging.info(f"qtl chrom not in match")
-                    continue
-                chrom = qtl1_chrom
-                print(f"processing {chrom}")
-                
-                # logging.info(f"qtl_gene_file: {qtl_gene_file}")
-                qtl1_phenotype_id = qtl1_row.loc['pheno_file'].strip('.tsv.gz')
-                qtl2_phenotype_id = qtl2_row.loc['pheno_file'].strip('.tsv.gz')
-                # logging.info(f"phenotype_id: {phenotype_id}")
 
-                qtl1_significant_positions = ast.literal_eval(qtl1_row.loc['positions'])
-                qtl2_significant_positions = ast.literal_eval(qtl2_row.loc['positions'])
+    def start_process(self, qtl1_summary_df, qtl1_col_dict, qtl2_summary_df,
+                    qtl2_col_dict, qtl1_type_dict, qtl2_type_dict):
+        logging.info("start_process")
 
-                if len(set(qtl1_significant_positions) & set(qtl2_significant_positions)) < self.min_matching_number:
-                    logging.info(f"coloc not enough SNPs in {self.qtl1_type} {qtl1_phenotype_id} and {self.qtl2_type} {qtl2_phenotype_id} ")
-                    continue
-                print(f"checkpoint 4: {qtl1_phenotype_id}_{qtl2_phenotype_id}")
-                qtl1_pheno_file = os.path.join(self.qtl1_grouped_dir, chrom, f"{qtl1_phenotype_id}.tsv.gz")
-                qtl2_pheno_file = os.path.join(self.qtl2_grouped_dir, chrom, f"{qtl2_phenotype_id}.tsv.gz")
-                self.process_pheno(qtl1_pheno_file, qtl1_col_dict, qtl1_phenotype_id, qtl1_type_dict,
-                                   qtl2_pheno_file, qtl2_col_dict, qtl2_phenotype_id, qtl2_type_dict,
-                                   self.var_id_col_name, chrom,
-                                   self.qtl1_sample_size, self.qtl2_sample_size,
-                                   self.min_matching_number,
-                                   self.qtl1_threshold, self.qtl2_threshold)
+        # Group by chromosome once, up front, instead of doing a full O(n*m)
+        # cross product and discarding most pairs inside the loop.
+        qtl1_groups = dict(qtl1_summary_df.groupby(qtl1_summary_df['chrom'].astype(str)))
+        qtl2_groups = dict(qtl2_summary_df.groupby(qtl2_summary_df['chrom'].astype(str)))
+        common_chroms = sorted(set(qtl1_groups) & set(qtl2_groups), key=lambda c: (len(c), c))
 
+        n_checked = 0
+        n_processed = 0
+
+        for chrom in common_chroms:
+            qtl1_sub = qtl1_groups[chrom]
+            qtl2_sub = qtl2_groups[chrom]
+            logging.info(f"chrom {chrom}: {len(qtl1_sub)} x {len(qtl2_sub)} phenotype pairs to check")
+
+            # Parse qtl2's positions/phenotype_id once per chrom, not once per
+            # (qtl1_row, qtl2_row) pair as the original code effectively did.
+            qtl2_entries = [
+                (self._strip_suffix(row.pheno_file, '.tsv.gz'), set(ast.literal_eval(row.positions)))
+                for row in qtl2_sub.itertuples(index=False)
+            ]
+
+            for qtl1_row in qtl1_sub.itertuples(index=False):
+                qtl1_phenotype_id = self._strip_suffix(qtl1_row.pheno_file, '.tsv.gz')
+                qtl1_positions = set(ast.literal_eval(qtl1_row.positions))
+
+                for qtl2_phenotype_id, qtl2_positions in qtl2_entries:
+                    n_checked += 1
+                    if len(qtl1_positions & qtl2_positions) < self.min_matching_number:
+                        continue
+
+                    n_processed += 1
+                    qtl1_pheno_file = os.path.join(self.qtl1_grouped_dir, chrom, f"{qtl1_phenotype_id}.tsv.gz")
+                    qtl2_pheno_file = os.path.join(self.qtl2_grouped_dir, chrom, f"{qtl2_phenotype_id}.tsv.gz")
+                    self.process_pheno(
+                        qtl1_pheno_file, qtl1_col_dict, qtl1_phenotype_id, qtl1_type_dict,
+                        qtl2_pheno_file, qtl2_col_dict, qtl2_phenotype_id, qtl2_type_dict,
+                        self.var_id_col_name, chrom,
+                        self.qtl1_sample_size, self.qtl2_sample_size,
+                        self.min_matching_number,
+                        self.qtl1_threshold, self.qtl2_threshold,
+                    )
+
+        logging.info(f"start_process done: {n_checked} pairs checked, {n_processed} processed")
 
     def process_pheno(self, qtl1_pheno_file, qtl1_col_dict, qtl1_phenotype_id, qtl1_type_dict,
                       qtl2_pheno_file, qtl2_col_dict, qtl2_phenotype_id, qtl2_type_dict,
