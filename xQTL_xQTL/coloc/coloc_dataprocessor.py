@@ -118,9 +118,14 @@ class COLOC2QTLLOCI:
     def start_process(self, qtl1_summary_df, qtl1_col_dict, qtl2_summary_df,
                     qtl2_col_dict, qtl1_type_dict, qtl2_type_dict):
         logging.info("start_process")
-
+        logging.info(f"qtl1_summary_df type: {type(qtl1_summary_df)}")
+        logging.info(f"qtl1_summary_df.groupby type: {type(qtl1_summary_df.groupby)}")
+        chrom_col = qtl1_summary_df['chrom']
+        logging.info(f"chrom_col type: {type(chrom_col)}")
+        qtl1_groups = dict(qtl1_summary_df.groupby(chrom_col.astype(str)))
         # Group by chromosome once, up front, instead of doing a full O(n*m)
         # cross product and discarding most pairs inside the loop.
+        print(f"qtl1_groups: {qtl1_groups}")
         qtl1_groups = dict(qtl1_summary_df.groupby(qtl1_summary_df['chrom'].astype(str)))
         qtl2_groups = dict(qtl2_summary_df.groupby(qtl2_summary_df['chrom'].astype(str)))
         common_chroms = sorted(set(qtl1_groups) & set(qtl2_groups), key=lambda c: (len(c), c))
