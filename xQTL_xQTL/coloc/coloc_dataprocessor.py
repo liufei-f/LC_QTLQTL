@@ -110,7 +110,7 @@ class COLOC2QTLLOCI:
             with open(os.path.join(self.tool_parent_dir, f'{self.TOOL_NAME}_processed_done.txt'), 'w') as f:
                 f.write("DONE\n")
 
-    def _strip_suffix(filename, suffix):
+    def _strip_suffix(self, filename, suffix):
         return filename[: -len(suffix)] if filename.endswith(suffix) else filename
 
 
