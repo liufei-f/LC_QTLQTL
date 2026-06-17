@@ -111,35 +111,26 @@ class COLOC2QTLLOCI:
                 f.write("DONE\n")
 
     def _strip_suffix(filename, suffix):
-        """Remove a literal suffix, unlike str.strip() which strips a *character set*."""
         return filename[: -len(suffix)] if filename.endswith(suffix) else filename
 
 
     def start_process(self, qtl1_summary_df, qtl1_col_dict, qtl2_summary_df,
                     qtl2_col_dict, qtl1_type_dict, qtl2_type_dict):
         logging.info("start_process")
-        logging.info(f"qtl1_summary_df type: {type(qtl1_summary_df)}")
-        logging.info(f"qtl1_summary_df.groupby type: {type(qtl1_summary_df.groupby)}")
-        chrom_col = qtl1_summary_df['chrom']
-        logging.info(f"chrom_col type: {type(chrom_col)}")
-        qtl1_groups = dict(qtl1_summary_df.groupby(chrom_col.astype(str)))
-        # Group by chromosome once, up front, instead of doing a full O(n*m)
-        # cross product and discarding most pairs inside the loop.
-        print(f"qtl1_groups: {qtl1_groups}")
-        qtl1_groups = dict(qtl1_summary_df.groupby(qtl1_summary_df['chrom'].astype(str)))
-        qtl2_groups = dict(qtl2_summary_df.groupby(qtl2_summary_df['chrom'].astype(str)))
-        common_chroms = sorted(set(qtl1_groups) & set(qtl2_groups), key=lambda c: (len(c), c))
+
+        qtl1_summary_df = qtl1_summary_df.copy()
+        qtl2_summary_df = qtl2_summary_df.copy()
+        qtl1_summary_df['chrom'] = qtl1_summary_df['chrom'].astype(str)
+        qtl2_summary_df['chrom'] = qtl2_summary_df['chrom'].astype(str)
 
         n_checked = 0
         n_processed = 0
 
-        for chrom in common_chroms:
-            qtl1_sub = qtl1_groups[chrom]
-            qtl2_sub = qtl2_groups[chrom]
-            logging.info(f"chrom {chrom}: {len(qtl1_sub)} x {len(qtl2_sub)} phenotype pairs to check")
+        for chrom, qtl1_sub in qtl1_summary_df.groupby('chrom'):
+            if chrom not in qtl2_summary_df['chrom'].values:
+                continue
+            qtl2_sub = qtl2_summary_df[qtl2_summary_df['chrom'] == chrom]
 
-            # Parse qtl2's positions/phenotype_id once per chrom, not once per
-            # (qtl1_row, qtl2_row) pair as the original code effectively did.
             qtl2_entries = [
                 (self._strip_suffix(row.pheno_file, '.tsv.gz'), set(ast.literal_eval(row.positions)))
                 for row in qtl2_sub.itertuples(index=False)
