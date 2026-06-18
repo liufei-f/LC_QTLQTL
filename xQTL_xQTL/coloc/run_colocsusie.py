@@ -131,8 +131,17 @@ class COLOCSUSIE:
             # max_pos = str(max(gwas[self.gwas_col_dict['position']]))
 
 
-            qtl1_phenotype_id = qtl1_coloc_filename.strip('.tsv.gz').split(f'_{self.qtl2_type}_')[0].strip(f"qtl1_chr{chrom}_{self.qtl1_type}_")
-            qtl2_phenotype_id = qtl2_coloc_filename.strip('.tsv.gz').split(f'_{self.qtl2_type}_')[1]
+            qtl1_phenotype_id = (
+                qtl1_coloc_filename
+                .removesuffix('.tsv.gz')
+                .split(f'_{self.qtl2_type}_')[0]
+                .removeprefix(f"qtl1_chr{chrom}_{self.qtl1_type}_")
+            )
+            qtl2_phenotype_id = (
+                qtl2_coloc_filename
+                .removesuffix('.tsv.gz')
+                .split(f'_{self.qtl2_type}_')[1]
+            )
             logging.info(f"check phenotype IDs: {qtl1_phenotype_id}, {qtl2_phenotype_id}")
 
             filename = f'chr{chrom}_{self.qtl1_type}_{qtl1_phenotype_id}_{self.qtl2_type}_{qtl2_phenotype_id}'
