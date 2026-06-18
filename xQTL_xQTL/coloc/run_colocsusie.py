@@ -246,11 +246,11 @@ class COLOCSUSIE:
             phenotype_id = self.__get_phenotype_id_from_filename_diffqtl(single_result)
             
             df['phenotype_id'] = phenotype_id
-            filtered_df = df[df['hit1'] == df['hit2']]
-            filtered_df = filtered_df[['hit2', 'PP.H0.abf', 'PP.H1.abf', 'PP.H2.abf', 'PP.H3.abf', 'PP.H4.abf', 'idx1', 'idx2', 'lead_snp', 'locus_range']]
-            filtered_df.rename(columns={'hit2': 'snp'}, inplace=True)
+            # filtered_df = df[df['hit1'] == df['hit2']]
+            # filtered_df = filtered_df[['hit2', 'PP.H0.abf', 'PP.H1.abf', 'PP.H2.abf', 'PP.H3.abf', 'PP.H4.abf', 'idx1', 'idx2', 'lead_snp', 'locus_range']]
+            # filtered_df.rename(columns={'hit2': 'snp'}, inplace=True)
 
-            single_result_list.append(filtered_df)
+            single_result_list.append(df)
         if len(single_result_list) == 0:
             return
         report_df = pd.concat(single_result_list)

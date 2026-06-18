@@ -14,9 +14,9 @@ qtl2_type = args[7]
 qtl1_phenotype_id = args[8]
 qtl2_phenotype_id = args[9]
 tp1 = as.numeric(args[10]) # prior probability a SNP is associated with trait 1, default 1e-4
-tp2 = as.numeric(args[12]) # prior probability a SNP is associated with trait 2, default 1e-4
-tp12 = as.numeric(args[13]) # prior probability a SNP is associated with both traits, default 1e-5
-LD_path   <- args[14]
+tp2 = as.numeric(args[11]) # prior probability a SNP is associated with trait 2, default 1e-4
+tp12 = as.numeric(args[12]) # prior probability a SNP is associated with both traits, default 1e-5
+LD_path   <- args[13]
 
 # LD_path   <- "/Users/phoebel/Downloads/LD4602.colocboost.tsv"
 # eqtl_file <- "/Users/phoebel/Downloads/ENSG00000113504.20.eqtl4602.colocboost.tsv"
