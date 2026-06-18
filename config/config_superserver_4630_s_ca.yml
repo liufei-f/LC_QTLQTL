@@ -1,0 +1,55 @@
+working_dir: /work/lc_data/lctest/
+tools:
+- coloc
+min_matching_number: 5
+population: EUR
+input:
+  genomic_window: combined_LD_based_window
+  window_size: 500000
+  LD_r2_filter: 0.1
+  LD_additional_expansion: 50000
+  whether_fixed_window: 'False'
+  vcf: /work/lc_data/1000genomes_new
+  vcf_rsid: /work/lc_data/1000genomes_newrsid
+  genecode: /work/lc_data/datasource/gencode.v39.GRCh38.genes.gtf
+  ld_block_vcf_dir: /work/lc_data/1000genomes_ldblocks
+  qtl1:
+    qtl_type: sqtl
+    file: /work/lc_data/Whole_Blood.v10.cis_sqtl.allpairs.chr*.tsv.gz
+    biological_context: Whole_Blood
+    sample_size: 800
+    type: quant
+    target_loci: 'ALL'
+    p-value_threshold: 1.0e-5
+    col_name_mapping:
+      snp: rs_id_dbSNP155_GRCh38p13
+      chrom: chr
+      position: pos
+      beta: slope
+      alt: alt
+      ref: ref
+      pvalue: pval_nominal
+      se: slope_se
+      phenotype_id: phenotype_id
+      maf: maf
+      variant_id: variant_id
+  qtl2:
+    qtl_type: caqtl
+    file: /work/lc_data/tenk10k_caqtl/TenK10K.cis_qtl_pairs.chr*.tsv.gz
+    biological_context: HSPC
+    sample_size: 922
+    type: quant
+    target_loci: 'ALL'
+    p-value_threshold: 1.0e-5
+    col_name_mapping:
+      snp: rs_id_dbSNP155_GRCh38p13
+      chrom: chr
+      position: position
+      beta: slope
+      alt: alt
+      ref: ref
+      pvalue: pval_nominal
+      se: slope_se
+      phenotype_id: phenotype_id
+      maf: maf
+      variant_id: variant_id
